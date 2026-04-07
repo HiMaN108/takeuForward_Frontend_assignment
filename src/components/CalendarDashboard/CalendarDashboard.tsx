@@ -655,7 +655,7 @@ export default function CalendarDashboard() {
       id: `note-${Date.now()}`,
       x: baseX + randomBetween(-15, 15),
       y: Math.min(baseY + randomBetween(-10, 10), wallRect.height - 160),
-      text: `📅 ${dayName}, ${dateStr}\n──────\n${noteText.trim()}`,
+      text: `${dayName}, ${dateStr}\n──────\n${noteText.trim()}`,
       color: STICKY_COLORS[stickyNotes.length % STICKY_COLORS.length],
       rotation: randomBetween(-5, 5),
     };
