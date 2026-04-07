@@ -1,0 +1,1513 @@
+/* ========================================================
+   WALL CALENDAR – Realistic wall-mounted calendar with
+   flip animation, sticky notes, spiral binding.
+   ======================================================== */
+
+/* ===== Wall Background ===== */
+.wall {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #d6cfc4;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.008) 3px,
+      rgba(0, 0, 0, 0.008) 6px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.008) 3px,
+      rgba(0, 0, 0, 0.008) 6px
+    ),
+    radial-gradient(
+      ellipse at 30% 20%,
+      rgba(255, 255, 255, 0.18) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 75% 80%,
+      rgba(0, 0, 0, 0.06) 0%,
+      transparent 50%
+    );
+  cursor: default;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  user-select: none;
+}
+
+.wallHint {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 24px;
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  opacity: 0.8;
+  z-index: 50;
+  backdrop-filter: blur(8px);
+}
+
+/* ===== Nail & String ===== */
+.nailArea {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  height: 36px;
+  z-index: 5;
+}
+
+.nail {
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle at 35% 35%, #aaa, #666);
+  border-radius: 50%;
+  position: relative;
+  top: 0;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.stringLeft,
+.stringRight {
+  position: absolute;
+  top: 10px;
+  width: 1.5px;
+  height: 28px;
+  background: linear-gradient(180deg, #999, #bbb);
+}
+.stringLeft {
+  left: calc(50% - 14px);
+  transform: rotate(-12deg);
+  transform-origin: top center;
+}
+.stringRight {
+  left: calc(50% + 12px);
+  transform: rotate(12deg);
+  transform-origin: top center;
+}
+
+/* ===== Calendar Container ===== */
+.calendarContainer {
+  position: relative;
+  width: 560px;
+  z-index: 2;
+}
+
+/* ===== Spiral Binding ===== */
+.spiralBinding {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  z-index: 10;
+  padding: 0 30px;
+  height: 18px;
+}
+
+.spiralLoop {
+  width: 18px;
+  height: 14px;
+  border: 2.5px solid #888;
+  border-radius: 50% 50% 0 0;
+  border-bottom: none;
+  position: relative;
+  top: 4px;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+/* ===== Flip Container ===== */
+.flipContainer {
+  perspective: 2000px;
+  position: relative;
+}
+
+/* ===== Calendar Page ===== */
+.page {
+  position: relative;
+  background: #fff;
+  border-radius: 0 0 6px 6px;
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.22),
+    0 2px 8px rgba(0, 0, 0, 0.12);
+  transform-origin: top center;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.pageStatic {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  border-radius: 0 0 6px 6px;
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.22),
+    0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 0;
+}
+
+.flipUp {
+  animation: flipPageUp 0.85s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+  z-index: 2;
+}
+
+.flipDown {
+  animation: flipPageDown 0.85s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+  z-index: 2;
+}
+
+@keyframes flipPageUp {
+  0% {
+    transform: rotateX(0deg);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.22);
+  }
+  50% {
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+  }
+  100% {
+    transform: rotateX(-180deg);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.22);
+  }
+}
+
+@keyframes flipPageDown {
+  0% {
+    transform: rotateX(180deg);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.22);
+  }
+  50% {
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+  }
+  100% {
+    transform: rotateX(0deg);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.22);
+  }
+}
+
+/* ===== Image Section (Top Half) ===== */
+.imageSection {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+}
+
+.calendarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.imageOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 20px 28px;
+}
+
+.monthYearBadge {
+  text-align: right;
+}
+
+.monthYearBadge .yearText {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  line-height: 1;
+}
+
+.monthYearBadge .monthText {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  letter-spacing: 3px;
+  line-height: 1.2;
+}
+
+/* Decorative wave between image and grid */
+.waveDecor {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  z-index: 2;
+}
+
+/* ===== Grid Section (Bottom Half) ===== */
+.gridSection {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  padding: 16px 20px 20px;
+  gap: 16px;
+  min-height: 300px;
+}
+
+/* Notes / Tab column on the left */
+.notesLines {
+  display: flex;
+  flex-direction: column;
+}
+
+.notesLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+.noteLine {
+  height: 24px;
+  border-bottom: 1px solid #ddd;
+  width: 100%;
+}
+
+/* ===== Day Grid ===== */
+.dayGrid {
+  display: flex;
+  flex-direction: column;
+}
+
+.weekHeaderRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f0ede8;
+}
+
+.weekHeaderDay {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #888;
+  letter-spacing: 0.8px;
+  padding: 4px 0;
+  text-transform: uppercase;
+}
+
+/* SAT & SUN headers in blue */
+.weekHeaderDay:nth-child(6),
+.weekHeaderDay:nth-child(7) {
+  color: #3b98e6;
+}
+
+.daysContainer {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  flex: 1;
+}
+
+/* ===== Day Cell ===== */
+.dayCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1.15;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #3a3a3a;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  border: none;
+  background: transparent;
+  position: relative;
+  font-family: inherit;
+  letter-spacing: 0.2px;
+}
+
+.dayCell:hover {
+  background: rgba(59, 152, 230, 0.08);
+  transform: scale(1.08);
+}
+
+/* ── Other month cells (prev / next) ── */
+.otherMonthCell {
+  color: #ccc;
+  font-weight: 400;
+}
+
+.otherMonthCell:hover {
+  color: #aaa;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* ── Today with pulse/blink ── */
+.todayCell {
+  background: linear-gradient(135deg, #3b98e6, #5bb8f5);
+  color: #fff !important;
+  font-weight: 700;
+  border-radius: 50%;
+  box-shadow: 0 2px 12px rgba(59, 152, 230, 0.4);
+  animation: todayPulse 2s ease-in-out infinite;
+}
+
+.todayCell:hover {
+  background: linear-gradient(135deg, #2d7cc4, #4aa8f0);
+  transform: scale(1.12);
+}
+
+@keyframes todayPulse {
+  0%, 100% {
+    box-shadow: 0 2px 10px rgba(59, 152, 230, 0.35);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 152, 230, 0.55), 0 0 40px rgba(59, 152, 230, 0.2);
+    transform: scale(1.06);
+  }
+}
+
+/* ── Selected Cell ── */
+.selectedCell {
+  outline: 2.5px solid #3b98e6;
+  outline-offset: -1px;
+  border-radius: 50%;
+  font-weight: 700;
+  color: #3b98e6;
+  background: rgba(59, 152, 230, 0.06);
+}
+
+/* ── Weekend Cells (SAT / SUN) ── */
+.weekendCell {
+  color: #3b98e6;
+  font-weight: 600;
+}
+
+.emptyCell {
+  cursor: default;
+}
+
+.emptyCell:hover {
+  background: transparent;
+  transform: none;
+}
+
+/* ===== Month Navigation Arrows ===== */
+.monthNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+}
+
+.navArrow {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #555;
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.navArrow:hover {
+  background: #fff;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+  transform: scale(1.1);
+}
+
+.navArrow:active {
+  transform: scale(0.95);
+}
+
+.navLeft {
+  left: -56px;
+}
+
+.navRight {
+  right: -56px;
+}
+
+/* ===== Page Stack Effect ===== */
+.pageStack {
+  position: absolute;
+  bottom: -3px;
+  left: 3px;
+  right: 3px;
+  height: 6px;
+  background: #f5f2ed;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+  z-index: -1;
+}
+
+.pageStack::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 3px;
+  right: 3px;
+  height: 6px;
+  background: #eae7e2;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* ===== Sticky Notes ===== */
+.stickyNote {
+  position: absolute;
+  width: 160px;
+  min-height: 120px;
+  padding: 28px 14px 14px;
+  border-radius: 2px;
+  cursor: grab;
+  box-shadow:
+    2px 3px 12px rgba(0, 0, 0, 0.18),
+    0 0 1px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+  font-family: var(--font-caveat), "Caveat", cursive, sans-serif;
+}
+
+.stickyNote::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(
+    135deg,
+    transparent 50%,
+    rgba(0, 0, 0, 0.06) 50%
+  );
+  border-radius: 0 0 2px 0;
+}
+
+.stickyDragging {
+  cursor: grabbing;
+  box-shadow:
+    6px 10px 30px rgba(0, 0, 0, 0.25),
+    0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.stickyTape {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  width: 50px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.stickyDeleteBtn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.3);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.15s ease;
+  line-height: 1;
+  z-index: 5;
+}
+
+.stickyDeleteBtn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.stickyColorBtn {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.15s ease;
+  z-index: 5;
+  opacity: 0.5;
+}
+
+.stickyColorBtn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.stickyTextarea {
+  width: 100%;
+  min-height: 70px;
+  border: none;
+  background: transparent;
+  color: #333;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+}
+
+.stickyText {
+  color: #444;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+  word-break: break-word;
+  min-height: 50px;
+}
+
+/* ===== Country/Year Picker Bar ===== */
+.pickerBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  justify-content: center;
+}
+
+.pickerGroup {
+  position: relative;
+}
+
+.pickerBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 0.72rem;
+  color: #555;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.pickerBtn:hover {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.pickerFlag {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.pickerLabel {
+  font-weight: 600;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pickerChevron {
+  font-size: 0.55rem;
+  color: #999;
+}
+
+.pickerDropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 260px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+  z-index: 100;
+  overflow: hidden;
+  animation: dropdownIn 0.2s ease-out;
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pickerSearch {
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-bottom: 1px solid #eee;
+  font-size: 0.82rem;
+  outline: none;
+  font-family: inherit;
+  color: #333;
+}
+
+.pickerSearch::placeholder {
+  color: #aaa;
+}
+
+.pickerList {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.pickerList::-webkit-scrollbar {
+  width: 4px;
+}
+
+.pickerList::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 4px;
+}
+
+.pickerOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #444;
+  transition: background 0.15s ease;
+  text-align: left;
+  font-family: inherit;
+}
+
+.pickerOption:hover {
+  background: #f4f1ed;
+}
+
+.pickerOptionActive {
+  background: #e8f0fe;
+  font-weight: 600;
+}
+
+.pickerCode {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: #aaa;
+  font-weight: 500;
+}
+
+.pickerEmpty {
+  padding: 16px;
+  text-align: center;
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+.yearSelect {
+  padding: 4px 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 0.72rem;
+  color: #555;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  backdrop-filter: blur(4px);
+}
+
+.yearSelect:hover {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.pickerLoading {
+  font-size: 0.9rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Holiday Day Indicator ===== */
+.holidayCell {
+  position: relative;
+}
+
+.holidayDot {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ===== Holiday Tooltip ===== */
+.dayWrapper {
+  position: relative;
+}
+
+.holidayTooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  z-index: 30;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  animation: tooltipIn 0.15s ease-out;
+  max-width: 200px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.holidayTooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #333;
+}
+
+@keyframes tooltipIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ===== Holiday Notes (left column) ===== */
+.holidayNoteItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 3px 0;
+  border-bottom: 1px solid #eee;
+  min-height: 24px;
+}
+
+.holidayNoteDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.holidayNoteText {
+  font-size: 0.62rem;
+  color: #555;
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.holidayNoteDate {
+  font-weight: 700;
+  color: #3b98e6;
+  margin-right: 2px;
+}
+
+.notesScrollable {
+  overflow-y: auto;
+  max-height: 240px;
+  padding-right: 4px;
+}
+
+.notesScrollable::-webkit-scrollbar {
+  width: 3px;
+}
+
+.notesScrollable::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 3px;
+}
+
+/* ===== API Error ===== */
+.apiError {
+  font-size: 0.65rem;
+  color: #c0392b;
+  text-align: center;
+  padding: 4px 8px;
+  background: rgba(192, 57, 43, 0.06);
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+/* ===== Tab Bar ===== */
+.tabBar {
+  display: flex;
+  gap: 0;
+  margin-bottom: 8px;
+  border-bottom: 1.5px solid #e5e2dd;
+}
+
+.tabBtn {
+  flex: 1;
+  padding: 5px 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #aaa;
+  letter-spacing: 0.3px;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1.5px;
+  font-family: inherit;
+  text-transform: uppercase;
+}
+
+.tabBtn:hover {
+  color: #666;
+}
+
+.tabBtnActive {
+  color: #3b98e6;
+  border-bottom-color: #3b98e6;
+}
+
+.tabContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ===== Note Input ===== */
+.noteInputSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.noteSelectedDate {
+  font-size: 0.65rem;
+  color: #888;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.noteSelectedDateBadge {
+  background: #3b98e6;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.6rem;
+}
+
+.noteTextarea {
+  flex: 1;
+  width: 100%;
+  min-height: 60px;
+  max-height: 110px;
+  border: 1px solid #e0ddd8;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.72rem;
+  color: #333;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  line-height: 1.4;
+  background: #fafaf8;
+}
+
+.noteTextarea::placeholder { color: #bbb; }
+.noteTextarea:focus {
+  border-color: #3b98e6;
+  box-shadow: 0 0 0 2px rgba(59, 152, 230, 0.1);
+  background: #fff;
+}
+
+.noteSaveBtn {
+  align-self: flex-end;
+  padding: 5px 16px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #3b98e6, #5bb8f5);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  letter-spacing: 0.3px;
+}
+
+.noteSaveBtn:hover {
+  box-shadow: 0 3px 10px rgba(59, 152, 230, 0.35);
+  transform: translateY(-1px);
+}
+
+.noteSaveBtn:active { transform: translateY(0); }
+.noteSaveBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.noteSaved {
+  font-size: 0.65rem;
+  color: #27ae60;
+  text-align: center;
+  padding: 4px;
+  animation: fadeInOut 1.5s ease-out forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(4px); }
+  20% { opacity: 1; transform: translateY(0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+/* ===== Theme Toggle Button ===== */
+.themeToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #666;
+  backdrop-filter: blur(4px);
+  flex-shrink: 0;
+}
+
+.themeToggle:hover {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transform: scale(1.1);
+  color: #333;
+}
+
+.themeToggle:active {
+  transform: scale(0.95);
+}
+
+/* ===========================================================
+   DARK MODE
+   =========================================================== */
+.dark .wall,
+.wall.dark {
+  background: #1a1a2e;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(255, 255, 255, 0.015) 3px,
+      rgba(255, 255, 255, 0.015) 6px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 3px,
+      rgba(255, 255, 255, 0.015) 3px,
+      rgba(255, 255, 255, 0.015) 6px
+    ),
+    radial-gradient(
+      ellipse at 30% 20%,
+      rgba(59, 152, 230, 0.06) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 75% 80%,
+      rgba(0, 0, 0, 0.15) 0%,
+      transparent 50%
+    );
+}
+
+/* Calendar page in dark mode */
+.dark .page,
+.dark .pageStatic {
+  background: #1e1e30;
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Image overlay – slightly darker */
+.dark .imageOverlay {
+  background: linear-gradient(135deg, transparent 30%, rgba(0, 0, 0, 0.35) 100%) !important;
+}
+
+/* Grid section */
+.dark .gridSection {
+  background: #1e1e30;
+}
+
+/* Week headers */
+.dark .weekHeaderRow {
+  border-bottom-color: #2a2a40;
+}
+
+.dark .weekHeaderDay {
+  color: #777;
+}
+
+.dark .weekHeaderDay:nth-child(6),
+.dark .weekHeaderDay:nth-child(7) {
+  color: #5bb8f5;
+}
+
+/* Day cells */
+.dark .dayCell {
+  color: #d0d0d8;
+}
+
+.dark .dayCell:hover {
+  background: rgba(59, 152, 230, 0.12);
+}
+
+.dark .otherMonthCell {
+  color: #444;
+}
+
+.dark .otherMonthCell:hover {
+  color: #666;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dark .weekendCell {
+  color: #5bb8f5;
+}
+
+.dark .selectedCell {
+  color: #5bb8f5;
+  outline-color: #5bb8f5;
+  background: rgba(59, 152, 230, 0.1);
+}
+
+/* Today */
+.dark .todayCell {
+  background: linear-gradient(135deg, #2d7cc4, #4aa8f0);
+  box-shadow: 0 2px 12px rgba(59, 152, 230, 0.5);
+}
+
+/* Nav arrows */
+.dark .navArrow {
+  background: rgba(30, 30, 48, 0.85);
+  color: #bbb;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+.dark .navArrow:hover {
+  background: rgba(40, 40, 60, 0.95);
+  color: #fff;
+}
+
+/* Spiral loops */
+.dark .spiralLoop {
+  border-color: #555;
+}
+
+/* Nail */
+.dark .nail {
+  background: radial-gradient(circle at 35% 35%, #777, #444);
+}
+
+.dark .stringLeft,
+.dark .stringRight {
+  background: linear-gradient(180deg, #666, #888);
+}
+
+/* Page stack */
+.dark .pageStack {
+  background: #181828;
+}
+
+.dark .pageStack::after {
+  background: #151525;
+}
+
+/* Notes section */
+.dark .notesLines {
+  border-top-color: #2a2a40;
+}
+
+/* Tab bar */
+.dark .tabBar {
+  border-bottom-color: #2a2a40;
+}
+
+.dark .tabBtn {
+  color: #666;
+}
+
+.dark .tabBtn:hover {
+  color: #999;
+}
+
+.dark .tabBtnActive {
+  color: #5bb8f5;
+  border-bottom-color: #5bb8f5;
+}
+
+/* Holiday notes */
+.dark .holidayNoteItem {
+  border-bottom-color: #2a2a40;
+}
+
+.dark .holidayNoteText {
+  color: #bbb;
+}
+
+.dark .holidayNoteDate {
+  color: #5bb8f5;
+}
+
+/* Note input */
+.dark .noteSelectedDate {
+  color: #888;
+}
+
+.dark .noteTextarea {
+  background: #252540;
+  border-color: #333350;
+  color: #d0d0d8;
+}
+
+.dark .noteTextarea::placeholder {
+  color: #555;
+}
+
+.dark .noteTextarea:focus {
+  border-color: #5bb8f5;
+  background: #1e1e35;
+  box-shadow: 0 0 0 2px rgba(91, 184, 245, 0.12);
+}
+
+/* Picker bar – dark */
+.dark .pickerBtn {
+  background: rgba(30, 30, 48, 0.7);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #ccc;
+}
+
+.dark .pickerBtn:hover {
+  background: rgba(40, 40, 60, 0.9);
+}
+
+.dark .pickerChevron {
+  color: #666;
+}
+
+.dark .yearSelect {
+  background: rgba(30, 30, 48, 0.7);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #ccc;
+}
+
+.dark .yearSelect:hover {
+  background: rgba(40, 40, 60, 0.9);
+}
+
+.dark .themeToggle {
+  background: rgba(30, 30, 48, 0.7);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #f0c040;
+}
+
+.dark .themeToggle:hover {
+  background: rgba(40, 40, 60, 0.9);
+  color: #ffd700;
+}
+
+/* Picker dropdown – dark */
+.dark .pickerDropdown {
+  background: #252540;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.dark .pickerSearch {
+  background: #1e1e35;
+  border-bottom-color: #333;
+  color: #ddd;
+}
+
+.dark .pickerSearch::placeholder {
+  color: #666;
+}
+
+.dark .pickerOption {
+  color: #ccc;
+}
+
+.dark .pickerOption:hover {
+  background: #2a2a48;
+}
+
+.dark .pickerOptionActive {
+  background: rgba(59, 152, 230, 0.15);
+}
+
+.dark .pickerCode {
+  color: #555;
+}
+
+/* Tooltip – dark */
+.dark .holidayTooltip {
+  background: #eee;
+  color: #222;
+}
+
+.dark .holidayTooltip::after {
+  border-top-color: #eee;
+}
+
+/* Wall hint */
+.dark .wallHint {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* API Error */
+.dark .apiError {
+  background: rgba(192, 57, 43, 0.12);
+  color: #e74c3c;
+}
+
+/* Scrollbar – dark */
+.dark .notesScrollable::-webkit-scrollbar-thumb {
+  background: #444;
+}
+
+.dark .pickerList::-webkit-scrollbar-thumb {
+  background: #444;
+}
+
+/* Sticky notes – dark (keep note colors but darken tape) */
+.dark .stickyTape {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ===========================================================
+   RESPONSIVE BREAKPOINTS
+   =========================================================== */
+
+/* ── Tablet (max 900px) ── */
+@media (max-width: 900px) {
+  .calendarContainer {
+    width: 480px;
+  }
+
+  .imageSection {
+    height: 240px;
+  }
+
+  .navLeft { left: -48px; }
+  .navRight { right: -48px; }
+}
+
+/* ── Small tablet / large phone (max 700px) ── */
+@media (max-width: 700px) {
+  .wall {
+    padding-top: 24px;
+    padding-bottom: 80px;
+  }
+
+  .calendarContainer {
+    width: 94vw;
+    max-width: 440px;
+  }
+
+  .imageSection {
+    height: 200px;
+  }
+
+  .gridSection {
+    grid-template-columns: 1fr;
+    padding: 12px 14px 16px;
+    gap: 10px;
+  }
+
+  .notesLines {
+    order: 2;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+  }
+
+  .dayGrid {
+    order: 1;
+  }
+
+  .navLeft { left: -40px; }
+  .navRight { right: -40px; }
+
+  .navArrow {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .stickyNote {
+    width: 130px;
+    min-height: 100px;
+  }
+
+  .dayCell {
+    font-size: 0.85rem;
+    aspect-ratio: 1;
+  }
+
+  .weekHeaderDay {
+    font-size: 0.62rem;
+  }
+
+  .wallHint {
+    font-size: 0.68rem;
+    padding: 6px 14px;
+    bottom: 16px;
+  }
+}
+
+/* ── Phone (max 480px) ── */
+@media (max-width: 480px) {
+  .wall {
+    padding-top: 16px;
+  }
+
+  .calendarContainer {
+    width: 97vw;
+    max-width: 100%;
+  }
+
+  .imageSection {
+    height: 160px;
+  }
+
+  .monthYearBadge .yearText {
+    font-size: 1.1rem;
+  }
+
+  .monthYearBadge .monthText {
+    font-size: 1.2rem;
+    letter-spacing: 1.5px;
+  }
+
+  .gridSection {
+    padding: 10px 10px 14px;
+  }
+
+  .dayCell {
+    font-size: 0.78rem;
+    aspect-ratio: 1;
+    border-radius: 6px;
+  }
+
+  .navLeft { left: -30px; }
+  .navRight { right: -30px; }
+
+  .navArrow {
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
+  }
+
+  .spiralLoop {
+    width: 14px;
+    height: 10px;
+  }
+
+  .spiralBinding {
+    gap: 6px;
+  }
+
+  .pickerBar {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .pickerBtn {
+    font-size: 0.72rem;
+    padding: 5px 10px;
+  }
+
+  .pickerDropdown {
+    width: 220px;
+  }
+
+  .stickyNote {
+    width: 120px;
+    min-height: 90px;
+    padding: 24px 10px 10px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ── Extra small phone (max 360px) ── */
+@media (max-width: 360px) {
+  .navLeft { left: -24px; }
+  .navRight { right: -24px; }
+
+  .navArrow {
+    width: 26px;
+    height: 26px;
+    font-size: 0.9rem;
+  }
+
+  .dayCell {
+    font-size: 0.72rem;
+  }
+
+  .weekHeaderDay {
+    font-size: 0.55rem;
+    letter-spacing: 0;
+  }
+
+  .nailArea { height: 28px; }
+}
