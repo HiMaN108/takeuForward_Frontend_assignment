@@ -102,18 +102,36 @@ export function detectCountry(): string {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
     const tzCountryMap: Record<string, string> = {
-      "Asia/Kolkata": "IN", "Asia/Calcutta": "IN", "Asia/Mumbai": "IN",
-      "America/New_York": "US", "America/Chicago": "US", "America/Los_Angeles": "US",
-      "America/Denver": "US", "America/Phoenix": "US",
-      "Europe/London": "GB", "Europe/Paris": "FR", "Europe/Berlin": "DE",
-      "Europe/Madrid": "ES", "Europe/Rome": "IT", "Europe/Amsterdam": "NL",
-      "Asia/Tokyo": "JP", "Asia/Shanghai": "CN", "Asia/Singapore": "SG",
-      "Asia/Dubai": "AE", "Asia/Karachi": "PK", "Asia/Dhaka": "BD",
-      "Australia/Sydney": "AU", "Australia/Melbourne": "AU",
-      "America/Toronto": "CA", "America/Sao_Paulo": "BR",
-      "Asia/Seoul": "KR", "Asia/Bangkok": "TH",
-      "Europe/Moscow": "RU", "Europe/Istanbul": "TR",
-      "Africa/Lagos": "NG", "Africa/Cairo": "EG",
+      "Asia/Kolkata": "IN",
+      "Asia/Calcutta": "IN",
+      "Asia/Mumbai": "IN",
+      "America/New_York": "US",
+      "America/Chicago": "US",
+      "America/Los_Angeles": "US",
+      "America/Denver": "US",
+      "America/Phoenix": "US",
+      "Europe/London": "GB",
+      "Europe/Paris": "FR",
+      "Europe/Berlin": "DE",
+      "Europe/Madrid": "ES",
+      "Europe/Rome": "IT",
+      "Europe/Amsterdam": "NL",
+      "Asia/Tokyo": "JP",
+      "Asia/Shanghai": "CN",
+      "Asia/Singapore": "SG",
+      "Asia/Dubai": "AE",
+      "Asia/Karachi": "PK",
+      "Asia/Dhaka": "BD",
+      "Australia/Sydney": "AU",
+      "Australia/Melbourne": "AU",
+      "America/Toronto": "CA",
+      "America/Sao_Paulo": "BR",
+      "Asia/Seoul": "KR",
+      "Asia/Bangkok": "TH",
+      "Europe/Moscow": "RU",
+      "Europe/Istanbul": "TR",
+      "Africa/Lagos": "NG",
+      "Africa/Cairo": "EG",
       "Pacific/Auckland": "NZ",
     };
     if (tzCountryMap[tz]) return tzCountryMap[tz];
@@ -123,12 +141,20 @@ export function detectCountry(): string {
   return "IN";
 }
 
-/** Holiday type → dot color mapping */
+/** Holiday type -> dot color mapping */
 export function holidayColor(types: string[]): string {
-  if (types.some((t) => t.toLowerCase().includes("national"))) return "#e74c3c";
-  if (types.some((t) => t.toLowerCase().includes("public"))) return "#e74c3c";
-  if (types.some((t) => t.toLowerCase().includes("religious"))) return "#9b59b6";
-  if (types.some((t) => t.toLowerCase().includes("observance"))) return "#27ae60";
-  if (types.some((t) => t.toLowerCase().includes("local"))) return "#f39c12";
-  return "#3498db";
+  if (types.some((t) => t.toLowerCase().includes("national"))) return "#ff4757"; // Vibrant red
+  if (types.some((t) => t.toLowerCase().includes("public"))) return "#ff6348"; // Tomato red
+  if (types.some((t) => t.toLowerCase().includes("religious")))
+    return "#5f27cd"; // Deep purple
+  if (types.some((t) => t.toLowerCase().includes("observance")))
+    return "#00d2d3"; // Bright cyan
+  if (types.some((t) => t.toLowerCase().includes("local"))) return "#ffa502"; // Vivid orange
+  if (types.some((t) => t.toLowerCase().includes("federal"))) return "#ff3742"; // Bright red
+  if (types.some((t) => t.toLowerCase().includes("bank"))) return "#2ed573"; // Bright green
+  if (types.some((t) => t.toLowerCase().includes("christmas")))
+    return "#c44569"; // Rose red
+  if (types.some((t) => t.toLowerCase().includes("easter"))) return "#a29bfe"; // Light purple
+  if (types.some((t) => t.toLowerCase().includes("new"))) return "#48dbfb"; // Sky blue
+  return "#3498db"; // Default blue
 }

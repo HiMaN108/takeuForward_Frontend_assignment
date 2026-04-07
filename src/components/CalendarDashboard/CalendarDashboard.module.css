@@ -29,35 +29,9 @@
       rgba(255, 255, 255, 0.18) 0%,
       transparent 60%
     ),
-    radial-gradient(
-      ellipse at 75% 80%,
-      rgba(0, 0, 0, 0.06) 0%,
-      transparent 50%
-    );
-  cursor: default;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 40px;
-  padding-bottom: 40px;
+    radial-gradient(ellipse at 75% 80%, rgba(0, 0, 0, 0.06) 0%, transparent 50%);
+  cursor: crosshair;
   user-select: none;
-}
-
-.wallHint {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
-  padding: 8px 20px;
-  border-radius: 24px;
-  font-size: 0.78rem;
-  letter-spacing: 0.5px;
-  pointer-events: none;
-  opacity: 0.8;
-  z-index: 50;
-  backdrop-filter: blur(8px);
 }
 
 /* ===== Nail & String ===== */
@@ -105,6 +79,47 @@
   position: relative;
   width: 560px;
   z-index: 2;
+  flex-shrink: 0;
+}
+
+/* Desktop-specific: Ensure calendar stays perfectly centered */
+@media (min-width: 701px) {
+  .wall {
+    display: block !important;
+    position: relative !important;
+  }
+
+  .calendarContainer {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 560px !important;
+    flex-shrink: 0 !important;
+    z-index: 2 !important;
+  }
+
+  .nailArea {
+    position: absolute !important;
+    left: 50% !important;
+    top: 40px !important;
+    transform: translateX(-50%) !important;
+    z-index: 5 !important;
+  }
+
+  .stringLeft,
+  .stringRight {
+    position: absolute !important;
+    top: 40px !important;
+  }
+
+  .stringLeft {
+    left: calc(50% - 280px - 20px) !important;
+  }
+
+  .stringRight {
+    right: calc(50% - 280px - 20px) !important;
+  }
 }
 
 /* ===== Spiral Binding ===== */
@@ -136,6 +151,304 @@
   position: relative;
 }
 
+/* ===== Page Container with Split Navigation ===== */
+.pageContainer {
+  position: relative;
+  width: 100%;
+  cursor: pointer;
+}
+
+.navigationHint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.upperHalfHint,
+.lowerHalfHint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: linear-gradient(
+    to bottom,
+    rgba(59, 152, 230, 0.1) 0%,
+    transparent 20%,
+    transparent 80%,
+    rgba(59, 152, 230, 0.1) 100%
+  );
+  gap: 8px;
+}
+
+.navIcon {
+  font-size: 2rem;
+  font-weight: 300;
+  opacity: 0.8;
+}
+
+.navText {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.upperHalfHint {
+  top: 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.lowerHalfHint {
+  bottom: 0;
+  border-top: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.pageContainer:hover .upperHalfHint,
+.pageContainer:hover .lowerHalfHint {
+  opacity: 1;
+}
+
+/* Dark mode navigation hints */
+.dark .upperHalfHint,
+.dark .lowerHalfHint {
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  background: linear-gradient(
+    to bottom,
+    rgba(91, 184, 245, 0.1) 0%,
+    transparent 20%,
+    transparent 80%,
+    rgba(91, 184, 245, 0.1) 100%
+  );
+}
+
+.dark .navIcon {
+  opacity: 0.7;
+}
+
+.dark .navText {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.dark .upperHalfHint {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .lowerHalfHint {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== Info Tooltip ===== */
+.infoTooltip {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+}
+
+.infoButton {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.infoButton:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+}
+
+.infoIcon {
+  font-style: italic;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.infoTooltipContent {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 280px;
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.infoTooltip:hover .infoTooltipContent,
+.infoButton:focus + .infoTooltipContent {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.infoTooltipTitle {
+  font-weight: 700;
+  font-size: 0.75rem;
+  margin-bottom: 6px;
+  color: #3b98e6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoTooltipText {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.infoTooltipText strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Dark mode info tooltip */
+.dark .infoButton {
+  background: rgba(30, 30, 48, 0.7);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dark .infoButton:hover {
+  background: rgba(40, 40, 60, 0.8);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.dark .infoTooltipContent {
+  background: rgba(20, 20, 35, 0.95);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark .infoTooltipTitle {
+  color: #5bb8f5;
+}
+
+/* ===== Wall Info Tooltip ===== */
+.wallInfoTooltip {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 50;
+}
+
+.wallInfoButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.wallInfoButton:hover {
+  background: rgba(0, 0, 0, 0.8);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.wallInfoTooltipContent {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  right: 0;
+  width: 300px;
+  background: rgba(0, 0, 0, 0.95);
+  color: #fff;
+  padding: 16px 18px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.wallInfoTooltip:hover .wallInfoTooltipContent,
+.wallInfoButton:focus + .wallInfoTooltipContent {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.wallInfoTooltipTitle {
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  color: #3b98e6;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.wallInfoTooltipText {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.wallInfoTooltipText strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Dark mode wall info tooltip */
+.dark .wallInfoButton {
+  background: rgba(20, 20, 35, 0.8);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark .wallInfoButton:hover {
+  background: rgba(30, 30, 48, 0.9);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.dark .wallInfoTooltipContent {
+  background: rgba(15, 15, 25, 0.98);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .wallInfoTooltipTitle {
+  color: #5bb8f5;
+}
+
 /* ===== Calendar Page ===== */
 .page {
   position: relative;
@@ -161,12 +474,12 @@
 }
 
 .flipUp {
-  animation: flipPageUp 0.85s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+  animation: flipPageUp 0.85s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   z-index: 2;
 }
 
 .flipDown {
-  animation: flipPageDown 0.85s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+  animation: flipPageDown 0.85s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   z-index: 2;
 }
 
@@ -324,8 +637,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1.15;
-  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
   font-size: 0.9rem;
   font-weight: 500;
   color: #3a3a3a;
@@ -336,6 +650,8 @@
   position: relative;
   font-family: inherit;
   letter-spacing: 0.2px;
+  margin: 0 auto;
+  flex-shrink: 0;
 }
 
 .dayCell:hover {
@@ -354,40 +670,103 @@
   background: rgba(0, 0, 0, 0.02);
 }
 
-/* ── Today with pulse/blink ── */
+/* ── Today with enhanced pulse/blink */
 .todayCell {
-  background: linear-gradient(135deg, #3b98e6, #5bb8f5);
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
   color: #fff !important;
-  font-weight: 700;
+  font-weight: 800;
   border-radius: 50%;
-  box-shadow: 0 2px 12px rgba(59, 152, 230, 0.4);
-  animation: todayPulse 2s ease-in-out infinite;
+  box-shadow:
+    0 4px 15px rgba(255, 107, 107, 0.4),
+    0 0 0 2px rgba(255, 255, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  animation:
+    todayPulse 2s ease-in-out infinite,
+    todayGlow 3s ease-in-out infinite alternate;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.todayCell::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: todayShine 4s linear infinite;
 }
 
 .todayCell:hover {
-  background: linear-gradient(135deg, #2d7cc4, #4aa8f0);
-  transform: scale(1.12);
+  background: linear-gradient(135deg, #ff5252, #ff793a);
+  transform: scale(1.15) rotate(5deg);
+  box-shadow:
+    0 6px 20px rgba(255, 107, 107, 0.6),
+    0 0 0 3px rgba(255, 255, 255, 0.4);
 }
 
 @keyframes todayPulse {
-  0%, 100% {
-    box-shadow: 0 2px 10px rgba(59, 152, 230, 0.35);
+  0%,
+  100% {
+    box-shadow:
+      0 4px 15px rgba(255, 107, 107, 0.4),
+      0 0 0 2px rgba(255, 255, 255, 0.3);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 20px rgba(59, 152, 230, 0.55), 0 0 40px rgba(59, 152, 230, 0.2);
-    transform: scale(1.06);
+    box-shadow:
+      0 0 25px rgba(255, 107, 107, 0.8),
+      0 0 0 4px rgba(255, 255, 255, 0.5),
+      0 0 40px rgba(255, 107, 107, 0.3);
+    transform: scale(1.05);
   }
 }
 
-/* ── Selected Cell ── */
+@keyframes todayGlow {
+  0% {
+    box-shadow:
+      0 4px 15px rgba(255, 107, 107, 0.4),
+      0 0 0 2px rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    box-shadow:
+      0 4px 15px rgba(255, 107, 107, 0.6),
+      0 0 0 2px rgba(255, 255, 255, 0.4),
+      0 0 20px rgba(255, 107, 107, 0.2);
+  }
+}
+
+@keyframes todayShine {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+/* ── Selected Cell */
 .selectedCell {
+  width: 30px;
+  height: 30px;
   outline: 2.5px solid #3b98e6;
   outline-offset: -1px;
   border-radius: 50%;
   font-weight: 700;
   color: #3b98e6;
   background: rgba(59, 152, 230, 0.06);
+  margin: 0 auto;
+  flex-shrink: 0;
 }
 
 /* ── Weekend Cells (SAT / SUN) ── */
@@ -414,8 +793,8 @@
 }
 
 .navArrow {
-  width: 42px;
-  height: 42px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: none;
   background: rgba(255, 255, 255, 0.9);
@@ -441,11 +820,11 @@
 }
 
 .navLeft {
-  left: -56px;
+  left: -40px;
 }
 
 .navRight {
-  right: -56px;
+  right: -40px;
 }
 
 /* ===== Page Stack Effect ===== */
@@ -473,111 +852,141 @@
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
 }
 
-/* ===== Sticky Notes ===== */
+/* ===== Enhanced Sticky Notes ===== */
 .stickyNote {
   position: absolute;
-  width: 160px;
-  min-height: 120px;
-  padding: 28px 14px 14px;
+  width: 180px;
+  min-height: 140px;
+  padding: 28px 12px 12px;
+  background: #fff740;
   border-radius: 2px;
-  cursor: grab;
   box-shadow:
-    2px 3px 12px rgba(0, 0, 0, 0.18),
-    0 0 1px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.2s ease, transform 0.1s ease;
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  cursor: move;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   font-family: var(--font-caveat), "Caveat", cursive, sans-serif;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: #2c3e50;
+  position: relative;
+  overflow: visible;
 }
 
-.stickyNote::before {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 20px;
-  height: 20px;
-  background: linear-gradient(
-    135deg,
-    transparent 50%,
-    rgba(0, 0, 0, 0.06) 50%
-  );
-  border-radius: 0 0 2px 0;
+.stickyNote:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.2),
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .stickyDragging {
-  cursor: grabbing;
+  transform: scale(1.05) rotate(0deg) !important;
   box-shadow:
-    6px 10px 30px rgba(0, 0, 0, 0.25),
-    0 0 2px rgba(0, 0, 0, 0.1);
+    0 12px 32px rgba(0, 0, 0, 0.3),
+    0 6px 16px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  z-index: 1000 !important;
+  cursor: grabbing;
 }
 
+/* Tape effect */
 .stickyTape {
   position: absolute;
   top: -8px;
   left: 50%;
-  transform: translateX(-50%) rotate(-2deg);
-  width: 50px;
-  height: 18px;
-  background: rgba(255, 255, 255, 0.45);
+  transform: translateX(-50%);
+  width: 60px;
+  height: 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.6),
+    rgba(255, 255, 255, 0.3)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(2px);
+}
+
+/* Enhanced buttons */
+.stickyDeleteBtn,
+.stickyColorBtn,
+.stickyEditBtn {
+  position: absolute;
+  border: none;
+  background: rgba(0, 0, 0, 0.1);
+  color: #2c3e50;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.stickyNote:hover .stickyDeleteBtn,
+.stickyNote:hover .stickyColorBtn,
+.stickyNote:hover .stickyEditBtn {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .stickyDeleteBtn {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: transparent;
-  color: rgba(0, 0, 0, 0.3);
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.15s ease;
-  line-height: 1;
-  z-index: 5;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
 }
 
 .stickyDeleteBtn:hover {
-  background: rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.7);
+  background: rgba(231, 76, 60, 0.8);
+  color: #fff;
+  transform: scale(1.1);
 }
 
 .stickyColorBtn {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 20px;
-  height: 20px;
-  border: none;
-  background: transparent;
-  font-size: 0.7rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.15s ease;
-  z-index: 5;
-  opacity: 0.5;
+  top: 8px;
+  left: 8px;
+  width: 22px;
+  height: 22px;
 }
 
 .stickyColorBtn:hover {
-  opacity: 1;
-  background: rgba(0, 0, 0, 0.06);
+  background: rgba(52, 152, 219, 0.8);
+  color: #fff;
+  transform: scale(1.1);
 }
 
+.stickyEditBtn {
+  bottom: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background: rgba(46, 204, 113, 0.1);
+}
+
+.stickyEditBtn:hover {
+  background: rgba(46, 204, 113, 0.8);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* Text area and content */
 .stickyTextarea {
   width: 100%;
-  min-height: 70px;
+  height: 100px;
   border: none;
   background: transparent;
-  color: #333;
-  font-size: 0.95rem;
   font-family: inherit;
   resize: none;
   outline: none;
@@ -612,7 +1021,7 @@
   gap: 5px;
   padding: 4px 10px;
   border-radius: 14px;
-  border: 1px solid rgba(0, 0, 0, 0.10);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   background: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   font-size: 0.72rem;
@@ -660,8 +1069,14 @@
 }
 
 @keyframes dropdownIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .pickerSearch {
@@ -735,7 +1150,7 @@
 .yearSelect {
   padding: 4px 8px;
   border-radius: 14px;
-  border: 1px solid rgba(0, 0, 0, 0.10);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   background: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   font-size: 0.72rem;
@@ -758,23 +1173,50 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* ===== Holiday Day Indicator ===== */
+/* Enhanced Holiday Cell with Color Overlay */
 .holidayCell {
   position: relative;
+  transition: all 0.2s ease;
+  width: 30px;
+  height: 30px;
+  margin: 0 auto;
+  flex-shrink: 0;
 }
 
-.holidayDot {
+.holidayCell:hover {
+  transform: scale(1.1);
+  z-index: 10;
+}
+
+.holidayCell::before {
+  content: "";
   position: absolute;
-  bottom: 3px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+  inset: -2px;
+  border-radius: inherit;
+  background: inherit;
+  opacity: 0.2;
+  z-index: -1;
+  filter: blur(4px);
+}
+
+.holidayCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
   pointer-events: none;
+}
+
+.holidayCell:hover::after {
+  opacity: 1;
 }
 
 /* ===== Holiday Tooltip ===== */
@@ -813,43 +1255,91 @@
 }
 
 @keyframes tooltipIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
-/* ===== Holiday Notes (left column) ===== */
+/* Enhanced Holiday Notes (left column) */
 .holidayNoteItem {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
-  padding: 3px 0;
-  border-bottom: 1px solid #eee;
-  min-height: 24px;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  min-height: 28px;
+  border-radius: 6px;
+  margin-bottom: 2px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.holidayNoteItem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(
+    135deg,
+    var(--holiday-color, #3498db),
+    var(--holiday-color-light, #5dade2)
+  );
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.holidayNoteItem:hover {
+  background: rgba(0, 0, 0, 0.03);
+  transform: translateX(2px);
+}
+
+.holidayNoteItem:hover::before {
+  opacity: 1;
 }
 
 .holidayNoteDot {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  margin-top: 5px;
+  margin-top: 4px;
   flex-shrink: 0;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.8),
+    0 2px 4px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 2;
 }
 
 .holidayNoteText {
-  font-size: 0.62rem;
-  color: #555;
-  line-height: 1.3;
+  font-size: 0.65rem;
+  color: #444;
+  line-height: 1.4;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
+  font-weight: 500;
+  flex: 1;
 }
 
 .holidayNoteDate {
-  font-weight: 700;
-  color: #3b98e6;
-  margin-right: 2px;
+  font-weight: 800;
+  color: #2c3e50;
+  margin-right: 3px;
+  background: linear-gradient(135deg, #3498db, #5dade2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .notesScrollable {
@@ -957,12 +1447,16 @@
   font-family: inherit;
   resize: none;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   line-height: 1.4;
   background: #fafaf8;
 }
 
-.noteTextarea::placeholder { color: #bbb; }
+.noteTextarea::placeholder {
+  color: #bbb;
+}
 .noteTextarea:focus {
   border-color: #3b98e6;
   box-shadow: 0 0 0 2px rgba(59, 152, 230, 0.1);
@@ -970,31 +1464,71 @@
 }
 
 .noteSaveBtn {
-  align-self: flex-end;
-  padding: 5px 16px;
+  align-self: center;
+  justify-self: center;
+  width: fit-content;
+  margin: 8px auto 0;
+  padding: 8px 20px;
   border: none;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #3b98e6, #5bb8f5);
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
   color: #fff;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   font-family: inherit;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow:
+    0 4px 15px rgba(255, 107, 107, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.noteSaveBtn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
 }
 
 .noteSaveBtn:hover {
-  box-shadow: 0 3px 10px rgba(59, 152, 230, 0.35);
-  transform: translateY(-1px);
+  box-shadow:
+    0 6px 20px rgba(255, 107, 107, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
 }
 
-.noteSaveBtn:active { transform: translateY(0); }
+.noteSaveBtn:hover::before {
+  left: 100%;
+}
+
+.noteSaveBtn:active {
+  transform: translateY(0);
+}
+
 .noteSaveBtn:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
+  box-shadow:
+    0 2px 8px rgba(255, 107, 107, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.noteSaveBtn:disabled::before {
+  display: none;
 }
 
 .noteSaved {
@@ -1006,10 +1540,20 @@
 }
 
 @keyframes fadeInOut {
-  0% { opacity: 0; transform: translateY(4px); }
-  20% { opacity: 1; transform: translateY(0); }
-  80% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 /* ===== Theme Toggle Button ===== */
 .themeToggle {
@@ -1019,7 +1563,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.10);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   background: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1065,11 +1609,7 @@
       rgba(59, 152, 230, 0.06) 0%,
       transparent 60%
     ),
-    radial-gradient(
-      ellipse at 75% 80%,
-      rgba(0, 0, 0, 0.15) 0%,
-      transparent 50%
-    );
+    radial-gradient(ellipse at 75% 80%, rgba(0, 0, 0, 0.15) 0%, transparent 50%);
 }
 
 /* Calendar page in dark mode */
@@ -1083,7 +1623,11 @@
 
 /* Image overlay – slightly darker */
 .dark .imageOverlay {
-  background: linear-gradient(135deg, transparent 30%, rgba(0, 0, 0, 0.35) 100%) !important;
+  background: linear-gradient(
+    135deg,
+    transparent 30%,
+    rgba(0, 0, 0, 0.35) 100%
+  ) !important;
 }
 
 /* Grid section */
@@ -1135,67 +1679,18 @@
 
 /* Today */
 .dark .todayCell {
-  background: linear-gradient(135deg, #2d7cc4, #4aa8f0);
-  box-shadow: 0 2px 12px rgba(59, 152, 230, 0.5);
+  background: linear-gradient(135deg, #ff5252, #ff793a);
+  box-shadow:
+    0 4px 15px rgba(255, 82, 82, 0.5),
+    0 0 0 2px rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-/* Nav arrows */
-.dark .navArrow {
-  background: rgba(30, 30, 48, 0.85);
-  color: #bbb;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
-}
-
-.dark .navArrow:hover {
-  background: rgba(40, 40, 60, 0.95);
-  color: #fff;
-}
-
-/* Spiral loops */
-.dark .spiralLoop {
-  border-color: #555;
-}
-
-/* Nail */
-.dark .nail {
-  background: radial-gradient(circle at 35% 35%, #777, #444);
-}
-
-.dark .stringLeft,
-.dark .stringRight {
-  background: linear-gradient(180deg, #666, #888);
-}
-
-/* Page stack */
-.dark .pageStack {
-  background: #181828;
-}
-
-.dark .pageStack::after {
-  background: #151525;
-}
-
-/* Notes section */
-.dark .notesLines {
-  border-top-color: #2a2a40;
-}
-
-/* Tab bar */
-.dark .tabBar {
-  border-bottom-color: #2a2a40;
-}
-
-.dark .tabBtn {
-  color: #666;
-}
-
-.dark .tabBtn:hover {
-  color: #999;
-}
-
-.dark .tabBtnActive {
-  color: #5bb8f5;
-  border-bottom-color: #5bb8f5;
+.dark .todayCell:hover {
+  background: linear-gradient(135deg, #ff4444, #ff6b35);
+  box-shadow:
+    0 6px 20px rgba(255, 82, 82, 0.7),
+    0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
 /* Holiday notes */
@@ -1203,12 +1698,19 @@
   border-bottom-color: #2a2a40;
 }
 
+.dark .holidayNoteItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .dark .holidayNoteText {
   color: #bbb;
 }
 
 .dark .holidayNoteDate {
-  color: #5bb8f5;
+  background: linear-gradient(135deg, #5bb8f5, #86c5f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Note input */
@@ -1310,11 +1812,6 @@
   border-top-color: #eee;
 }
 
-/* Wall hint */
-.dark .wallHint {
-  background: rgba(255, 255, 255, 0.1);
-}
-
 /* API Error */
 .dark .apiError {
   background: rgba(192, 57, 43, 0.12);
@@ -1349,8 +1846,12 @@
     height: 240px;
   }
 
-  .navLeft { left: -48px; }
-  .navRight { right: -48px; }
+  .navLeft {
+    left: -48px;
+  }
+  .navRight {
+    right: -48px;
+  }
 }
 
 /* ── Small tablet / large phone (max 700px) ── */
@@ -1385,8 +1886,12 @@
     order: 1;
   }
 
-  .navLeft { left: -40px; }
-  .navRight { right: -40px; }
+  .navLeft {
+    left: -40px;
+  }
+  .navRight {
+    right: -40px;
+  }
 
   .navArrow {
     width: 36px;
@@ -1394,9 +1899,38 @@
     font-size: 1.1rem;
   }
 
+  /* Sticky notes - mobile positioning fix */
+  .wall {
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 30px;
+  }
+
   .stickyNote {
-    width: 130px;
-    min-height: 100px;
+    position: relative !important;
+    width: calc(100% - 24px);
+    max-width: 320px;
+    margin: 0 auto 16px;
+    transform: none !important;
+    left: auto !important;
+    top: auto !important;
+    cursor: default;
+  }
+
+  .stickyDragging {
+    transform: scale(1.02) !important;
+  }
+
+  .stickyTape {
+    display: none;
+  }
+
+  .stickyDeleteBtn,
+  .stickyColorBtn,
+  .stickyEditBtn {
+    opacity: 1;
+    transform: scale(1);
   }
 
   .dayCell {
@@ -1449,8 +1983,12 @@
     border-radius: 6px;
   }
 
-  .navLeft { left: -30px; }
-  .navRight { right: -30px; }
+  .navLeft {
+    left: -30px;
+  }
+  .navRight {
+    right: -30px;
+  }
 
   .navArrow {
     width: 30px;
@@ -1482,17 +2020,42 @@
   }
 
   .stickyNote {
-    width: 120px;
-    min-height: 90px;
-    padding: 24px 10px 10px;
-    font-size: 0.85rem;
+    position: relative !important;
+    width: calc(100% - 20px);
+    max-width: 280px;
+    margin: 0 auto 12px;
+    transform: none !important;
+    left: auto !important;
+    top: auto !important;
+    cursor: default;
+    padding: 20px 10px 10px;
+    font-size: 0.9rem;
+  }
+
+  .stickyDragging {
+    transform: scale(1.02) !important;
+  }
+
+  .stickyTape {
+    display: none;
+  }
+
+  .stickyDeleteBtn,
+  .stickyColorBtn,
+  .stickyEditBtn {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
 /* ── Extra small phone (max 360px) ── */
 @media (max-width: 360px) {
-  .navLeft { left: -24px; }
-  .navRight { right: -24px; }
+  .navLeft {
+    left: -24px;
+  }
+  .navRight {
+    right: -24px;
+  }
 
   .navArrow {
     width: 26px;
@@ -1509,5 +2072,7 @@
     letter-spacing: 0;
   }
 
-  .nailArea { height: 28px; }
+  .nailArea {
+    height: 28px;
+  }
 }

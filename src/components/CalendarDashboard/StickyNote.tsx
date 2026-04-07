@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useCallback, useState } from "react";
+import { X, Palette, Edit3 } from "lucide-react";
 import styles from "./CalendarDashboard.module.css";
 
 export interface StickyNoteData {
@@ -40,22 +41,19 @@ export default function StickyNote({
     }
   }, [isEditing]);
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if ((e.target as HTMLElement).tagName === "TEXTAREA") return;
-      if ((e.target as HTMLElement).classList.contains(styles.stickyDeleteBtn))
-        return;
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(true);
-      const rect = noteRef.current!.getBoundingClientRect();
-      dragOffset.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
-    },
-    []
-  );
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).tagName === "TEXTAREA") return;
+    if ((e.target as HTMLElement).classList.contains(styles.stickyDeleteBtn))
+      return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+    const rect = noteRef.current!.getBoundingClientRect();
+    dragOffset.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+  }, []);
 
   useEffect(() => {
     if (!isDragging) return;
@@ -82,7 +80,7 @@ export default function StickyNote({
       const nextColor = STICKY_COLORS[(idx + 1) % STICKY_COLORS.length];
       onUpdate(note.id, { color: nextColor });
     },
-    [note.id, note.color, onUpdate]
+    [note.id, note.color, onUpdate],
   );
 
   return (
@@ -114,7 +112,7 @@ export default function StickyNote({
         }}
         aria-label="Delete note"
       >
-        ×
+        <X size={16} />
       </button>
 
       {/* Color cycle button */}
@@ -123,8 +121,22 @@ export default function StickyNote({
         onClick={handleColorCycle}
         aria-label="Change color"
       >
-        🎨
+        <Palette size={14} />
       </button>
+
+      {/* Edit indicator */}
+      {!isEditing && (
+        <button
+          className={styles.stickyEditBtn}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsEditing(true);
+          }}
+          aria-label="Edit note"
+        >
+          <Edit3 size={12} />
+        </button>
+      )}
 
       {/* Note content */}
       {isEditing ? (

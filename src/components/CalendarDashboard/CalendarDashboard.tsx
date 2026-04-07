@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import Image from "next/image";
+import { Info } from "lucide-react";
 import styles from "./CalendarDashboard.module.css";
 import {
   WEEKDAYS,
@@ -13,6 +14,7 @@ import {
 import StickyNote, { type StickyNoteData } from "./StickyNote";
 import CountryYearPicker from "./CountryYearPicker";
 import { type Holiday, holidayColor } from "./holidays";
+import { calendarStorage } from "./storage";
 
 const SPIRAL_COUNT = 19;
 const STICKY_COLORS = ["#fff740", "#ff7eb3", "#7afcff", "#98ff98", "#ffa07a"];
@@ -33,7 +35,7 @@ function useHolidays(country: string, year: number) {
       setError(null);
       try {
         const res = await fetch(
-          `/api/holidays?country=${country}&year=${year}`
+          `/api/holidays?country=${country}&year=${year}`,
         );
         const data = await res.json();
         if (!cancelled) {
@@ -79,6 +81,7 @@ function CalendarPage({
   onNoteTextChange,
   onSaveNote,
   savedFlash,
+  onPageClick,
 }: {
   year: number;
   month: number;
@@ -93,6 +96,7 @@ function CalendarPage({
   onNoteTextChange: (text: string) => void;
   onSaveNote: () => void;
   savedFlash: boolean;
+  onPageClick: (e: React.MouseEvent<HTMLDivElement>) => void;
 }) {
   const days = getCalendarDays(year, month);
   const today = new Date();
@@ -116,7 +120,7 @@ function CalendarPage({
     return holidays
       .filter(
         (h) =>
-          h.date.datetime.month === month + 1 && h.date.datetime.year === year
+          h.date.datetime.month === month + 1 && h.date.datetime.year === year,
       )
       .sort((a, b) => a.date.datetime.day - b.date.datetime.day);
   }, [holidays, month, year]);
@@ -139,11 +143,41 @@ function CalendarPage({
   });
 
   return (
-    <>
-      {/* ── Image Section ── */}
+    <div className={styles.pageContainer} onClick={onPageClick}>
+      {/* Navigation hint overlay */}
+      {/* <div className={styles.navigationHint}>
+        <div className={styles.upperHalfHint}>
+          <span className={styles.navIcon}>«</span>
+          <span className={styles.navText}>Previous Month</span>
+        </div>
+        <div className={styles.lowerHalfHint}>
+          <span className={styles.navIcon}>»</span>
+          <span className={styles.navText}>Next Month</span>
+        </div>
+      </div> */}
+
+      {/* Info tooltip */}
+      <div className={styles.infoTooltip}>
+        <button className={styles.infoButton} aria-label="Navigation help">
+          <span className={styles.infoIcon}>i</span>
+        </button>
+        <div className={styles.infoTooltipContent}>
+          <div className={styles.infoTooltipTitle}>Navigation</div>
+          <div className={styles.infoTooltipText}>
+            <strong>Upper half:</strong> Click for previous month
+            <br />
+            <strong>Lower half:</strong> Click for next month
+            {/* <br />
+            <strong>Interactive areas:</strong> Click dates, tabs, and notes
+            without changing month */}
+          </div>
+        </div>
+      </div>
+
+      {/* Image Section */}
       <div className={styles.imageSection}>
         <Image
-          src="/calendar-hero.png"
+          src={month % 2 === 0 ? "/calendar-hero.png" : "/kashi.png"}
           alt={`${MONTH_NAMES[month]} landscape`}
           fill
           className={styles.calendarImage}
@@ -178,7 +212,7 @@ function CalendarPage({
         </svg>
       </div>
 
-      {/* ── Grid Section ── */}
+      {/* Grid Section */}
       <div className={styles.gridSection}>
         {/* Left column: Tabs (Holidays / Notes) */}
         <div className={styles.notesLines}>
@@ -186,17 +220,23 @@ function CalendarPage({
           <div className={styles.tabBar}>
             <button
               className={`${styles.tabBtn} ${activeTab === "holidays" ? styles.tabBtnActive : ""}`}
-              onClick={() => onTabChange("holidays")}
+              onClick={(e) => {
+                e.stopPropagation();
+                onTabChange("holidays");
+              }}
               id="tab-holidays"
             >
-               Holidays
+              Holidays
             </button>
             <button
               className={`${styles.tabBtn} ${activeTab === "notes" ? styles.tabBtnActive : ""}`}
-              onClick={() => onTabChange("notes")}
+              onClick={(e) => {
+                e.stopPropagation();
+                onTabChange("notes");
+              }}
               id="tab-notes"
             >
-               Notes
+              Notes
             </button>
           </div>
 
@@ -297,18 +337,27 @@ function CalendarPage({
                   className={styles.noteTextarea}
                   placeholder="Write your note..."
                   value={noteText}
-                  onChange={(e) => onNoteTextChange(e.target.value)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    onNoteTextChange(e.target.value);
+                  }}
                   onKeyDown={(e) => {
+                    e.stopPropagation();
                     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                       e.preventDefault();
                       onSaveNote();
                     }
                   }}
+                  onClick={(e) => e.stopPropagation()}
+                  onFocus={(e) => e.stopPropagation()}
                   id="calendar-note-input"
                 />
                 <button
                   className={styles.noteSaveBtn}
-                  onClick={onSaveNote}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSaveNote();
+                  }}
                   disabled={!noteText.trim()}
                   id="save-note-to-wall"
                 >
@@ -348,7 +397,9 @@ function CalendarPage({
                 d.getFullYear() === selectedDate.getFullYear();
               const dayOfWeek = d.getDay();
               const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-              const dayHolidays = isCurrentMonth ? holidayMap.get(dayNum) : undefined;
+              const dayHolidays = isCurrentMonth
+                ? holidayMap.get(dayNum)
+                : undefined;
               const isHovered = isCurrentMonth && hoveredDay === dayNum;
 
               let cls = styles.dayCell;
@@ -361,24 +412,45 @@ function CalendarPage({
                 if (dayHolidays) cls += ` ${styles.holidayCell}`;
               }
 
+              // Determine styling - holiday takes precedence unless it's today
+              const isHolidayToday = isToday && dayHolidays;
+              const buttonStyle =
+                dayHolidays && !isToday
+                  ? {
+                      background: holidayColor(dayHolidays[0].type),
+                      color: "#fff",
+                      fontWeight: "700",
+                      boxShadow: `0 2px 8px ${holidayColor(dayHolidays[0].type)}40`,
+                      border: `2px solid ${holidayColor(dayHolidays[0].type)}20`,
+                    }
+                  : isHolidayToday
+                    ? {
+                        background: `linear-gradient(135deg, ${holidayColor(dayHolidays[0].type)}, ${holidayColor(dayHolidays[0].type)}dd)`,
+                        color: "#fff",
+                        fontWeight: "800",
+                        boxShadow: `
+                      0 4px 15px ${holidayColor(dayHolidays[0].type)}40,
+                      0 0 0 2px rgba(255, 255, 255, 0.3),
+                      inset 0 1px 0 rgba(255, 255, 255, 0.2)
+                    `,
+                        border: `2px solid ${holidayColor(dayHolidays[0].type)}30`,
+                      }
+                    : undefined;
+
               return (
                 <div key={idx} className={styles.dayWrapper}>
                   <button
                     className={cls}
-                    onClick={() => isCurrentMonth && onSelectDate(d)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (isCurrentMonth) onSelectDate(d);
+                    }}
                     onMouseEnter={() => dayHolidays && onHoverDay(dayNum)}
                     onMouseLeave={() => onHoverDay(null)}
                     aria-label={d.toDateString()}
+                    style={buttonStyle}
                   >
                     {dayNum}
-                    {dayHolidays && (
-                      <span
-                        className={styles.holidayDot}
-                        style={{
-                          background: holidayColor(dayHolidays[0].type),
-                        }}
-                      />
-                    )}
                   </button>
                   {dayHolidays && isHovered && (
                     <div className={styles.holidayTooltip}>
@@ -393,14 +465,18 @@ function CalendarPage({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
 /* ─── Main Dashboard ─── */
 export default function CalendarDashboard() {
   const today = new Date();
-  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+
+  // Initialize from local storage
+  const [currentYear, setCurrentYear] = useState(() =>
+    calendarStorage.getSelectedYear(),
+  );
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState(today);
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
@@ -409,12 +485,18 @@ export default function CalendarDashboard() {
   const [targetYear, setTargetYear] = useState(today.getFullYear());
   const [targetMonth, setTargetMonth] = useState(today.getMonth());
 
-  const [stickyNotes, setStickyNotes] = useState<StickyNoteData[]>([]);
+  const [stickyNotes, setStickyNotes] = useState<StickyNoteData[]>(() =>
+    calendarStorage.getStickyNotes(),
+  );
   const wallRef = useRef<HTMLDivElement>(null);
 
-  // Country & year for holidays
-  const [country, setCountry] = useState("IN");
-  const [holidayYear, setHolidayYear] = useState(today.getFullYear());
+  // Country & year for holidays - initialize from local storage
+  const [country, setCountry] = useState(() =>
+    calendarStorage.getSelectedCountry(),
+  );
+  const [holidayYear, setHolidayYear] = useState(() =>
+    calendarStorage.getSelectedYear(),
+  );
 
   // Tabs & note input
   const [activeTab, setActiveTab] = useState<BottomTab>("holidays");
@@ -424,6 +506,21 @@ export default function CalendarDashboard() {
   // Dark mode
   const [darkMode, setDarkMode] = useState(false);
   const toggleDarkMode = useCallback(() => setDarkMode((v) => !v), []);
+
+  // Save sticky notes to local storage whenever they change
+  useEffect(() => {
+    calendarStorage.setStickyNotes(stickyNotes);
+  }, [stickyNotes]);
+
+  // Save country selection to local storage whenever it changes
+  useEffect(() => {
+    calendarStorage.setSelectedCountry(country);
+  }, [country]);
+
+  // Save year selection to local storage whenever it changes
+  useEffect(() => {
+    calendarStorage.setSelectedYear(holidayYear);
+  }, [holidayYear]);
 
   // Default country is India (users can change via picker)
 
@@ -471,6 +568,44 @@ export default function CalendarDashboard() {
       setFlipState("idle");
     }, 850);
   }, [flipState, currentYear, currentMonth]);
+
+  /* Calendar Page Click Handler */
+  const handlePageClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (flipState !== "idle") return;
+
+      // Check if the click was on an interactive element
+      const target = e.target as HTMLElement;
+      const isInteractive =
+        target.tagName === "BUTTON" ||
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "SELECT" ||
+        target.tagName === "A" ||
+        target.tagName === "LABEL" ||
+        target.closest("button") ||
+        target.closest("input") ||
+        target.closest("textarea") ||
+        target.closest("select") ||
+        target.closest("a") ||
+        target.closest("label") ||
+        target.classList.contains("dayCell") ||
+        target.closest(".dayCell");
+
+      if (isInteractive) return;
+
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickY = e.clientY - rect.top;
+      const midPoint = rect.height / 2;
+
+      if (clickY < midPoint) {
+        goPrev();
+      } else {
+        goNext();
+      }
+    },
+    [flipState, goPrev, goNext],
+  );
 
   const handleSelectDate = useCallback((d: Date) => {
     setSelectedDate(d);
@@ -533,33 +668,53 @@ export default function CalendarDashboard() {
     setTimeout(() => setSavedFlash(false), 1500);
   }, [noteText, selectedDate, stickyNotes.length]);
 
-  /* ── Sticky Notes: Double-click on wall ── */
+  /* ── Sticky Notes: Double-click on wall */
   const handleWallDoubleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (e.target !== wallRef.current) return;
-      const rect = wallRef.current!.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const newNote: StickyNoteData = {
-        id: `note-${Date.now()}`,
-        x: Math.max(0, Math.min(x - 80, rect.width - 170)),
-        y: Math.max(0, Math.min(y - 60, rect.height - 140)),
-        text: "",
-        color: STICKY_COLORS[Math.floor(Math.random() * STICKY_COLORS.length)],
-        rotation: randomBetween(-6, 6),
-      };
-      setStickyNotes((prev) => [...prev, newNote]);
+
+      // Check if we're on mobile
+      const isMobile = window.innerWidth <= 700;
+
+      if (isMobile) {
+        // On mobile, position notes below calendar (relative positioning)
+        const newNote: StickyNoteData = {
+          id: `note-${Date.now()}`,
+          x: 0, // Will be handled by CSS
+          y: 0, // Will be handled by CSS
+          text: "",
+          color:
+            STICKY_COLORS[Math.floor(Math.random() * STICKY_COLORS.length)],
+          rotation: 0, // No rotation on mobile for better readability
+        };
+        setStickyNotes((prev) => [...prev, newNote]);
+      } else {
+        // On desktop, position at click location (absolute positioning)
+        const rect = wallRef.current!.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const newNote: StickyNoteData = {
+          id: `note-${Date.now()}`,
+          x: Math.max(0, Math.min(x - 80, rect.width - 170)),
+          y: Math.max(0, Math.min(y - 60, rect.height - 140)),
+          text: "",
+          color:
+            STICKY_COLORS[Math.floor(Math.random() * STICKY_COLORS.length)],
+          rotation: randomBetween(-6, 6),
+        };
+        setStickyNotes((prev) => [...prev, newNote]);
+      }
     },
-    []
+    [],
   );
 
   const updateNote = useCallback(
     (id: string, updates: Partial<StickyNoteData>) => {
       setStickyNotes((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, ...updates } : n))
+        prev.map((n) => (n.id === id ? { ...n, ...updates } : n)),
       );
     },
-    []
+    [],
   );
 
   const deleteNote = useCallback((id: string) => {
@@ -583,6 +738,7 @@ export default function CalendarDashboard() {
         onNoteTextChange={setNoteText}
         onSaveNote={handleSaveNote}
         savedFlash={savedFlash}
+        onPageClick={handlePageClick}
       />
     ),
     [
@@ -595,7 +751,8 @@ export default function CalendarDashboard() {
       noteText,
       handleSaveNote,
       savedFlash,
-    ]
+      handlePageClick,
+    ],
   );
 
   const flipPages = useMemo(() => {
@@ -677,15 +834,15 @@ export default function CalendarDashboard() {
           <div className={styles.pageStack} />
         </div>
 
-        {/* Navigation arrows */}
-        <div className={`${styles.monthNav} ${styles.navLeft}`}>
+        {/* Navigation arrows - hidden due to new split-screen navigation */}
+        {/* <div className={`${styles.monthNav} ${styles.navLeft}`}>
           <button
             className={styles.navArrow}
             onClick={goPrev}
             aria-label="Previous month"
             id="prev-month"
           >
-            ‹
+            &lsaquo;
           </button>
         </div>
         <div className={`${styles.monthNav} ${styles.navRight}`}>
@@ -695,9 +852,9 @@ export default function CalendarDashboard() {
             aria-label="Next month"
             id="next-month"
           >
-            ›
+            &rsaquo;
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Sticky Notes */}
@@ -711,10 +868,24 @@ export default function CalendarDashboard() {
         />
       ))}
 
-      {/* Hint */}
-      <div className={styles.wallHint}>
-        Double-click on the wall to add a sticky note • Use the Notes tab to pin
-        date-specific notes
+      {/* Wall Info Tooltip */}
+      <div className={styles.wallInfoTooltip}>
+        <button className={styles.wallInfoButton} aria-label="Wall help">
+          <Info size={18} />
+        </button>
+        <div className={styles.wallInfoTooltipContent}>
+          <div className={styles.wallInfoTooltipTitle}>Wall Features</div>
+          <div className={styles.wallInfoTooltipText}>
+            <strong>Double-click:</strong> Add sticky notes to the wall
+            <br />
+            <strong>Notes tab:</strong> Pin date-specific notes
+            <br />
+            <strong>Drag notes:</strong> Move them around the wall
+            <br />
+            <strong>Split navigation:</strong> Click upper/lower half for
+            prev/next month
+          </div>
+        </div>
       </div>
     </div>
   );
