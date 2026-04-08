@@ -817,8 +817,8 @@ export default function CalendarDashboard() {
         {/* Nail */}
         <div className={styles.nailArea}>
           <div className={styles.nail} />
-          <div className={styles.stringLeft} />
-          <div className={styles.stringRight} />
+          {/* <div className={styles.stringLeft} />
+          <div className={styles.stringRight} /> */}
         </div>
 
         {/* Spiral binding */}
